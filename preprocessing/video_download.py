@@ -73,6 +73,13 @@ for annotation in tqdm(list_of_annotations, desc='Extracting features: '):
         os.mkdir(f"../multisum_data/video/{json_file['info']['category']}/{json_file['info']['sub_category']}")
     video_url = json_file['info']['url']
     yt = YouTube(video_url)
-    yt.streams.filter(file_extension='mp4').first().download(
-        output_path=f"../multisum_data/video/{json_file['info']['category']}/{json_file['info']['sub_category']}",
-        filename=json_file['info']['video_id'] + '.mp4')
+    fail_list = []
+    try:
+        yt.streams.filter(file_extension='mp4').first().download(
+            output_path=f"../multisum_data/video/{json_file['info']['category']}/{json_file['info']['sub_category']}",
+            filename=json_file['info']['video_id'] + '.mp4')
+    except:
+        fail_list.append(id)
+print(len(fail_list))
+with open('fail.json','w') as fw:
+    json.dump(fail_list,fw)
