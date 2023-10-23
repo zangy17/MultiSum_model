@@ -10,10 +10,12 @@ import numpy as np
 from torch.utils.data import Dataset, DataLoader
 from tqdm import tqdm
 import json
+import pytube
+from pytube import YouTube
 
 torch.set_num_threads(2)
 
-list_of_annotations = glob.glob('../../jielin/msmo/annotation/*/*/*')
+list_of_annotations = glob.glob('../multisum_data/annotation/*/*/*')
 
 # Load the CLIP model
 device = "cuda:0" if torch.cuda.is_available() else "cpu"
@@ -29,6 +31,7 @@ transform = transforms.Compose([
     preprocess
 ])
 
+
 class VideoFramesDataset(Dataset):
     def __init__(self, frames, transform):
         self.frames = frames
@@ -42,7 +45,8 @@ class VideoFramesDataset(Dataset):
         preprocessed_frame = self.transform(Image.fromarray(frame))
         return preprocessed_frame
 
-linear = torch.nn.Linear(512, 2048, dtype=torch.float16).to(device)
+
+linear = torch.nn.Linear(512, 2048, dtype=torch.float32).to(device)
 model.to(device)
 
 save_np_dic = {}
@@ -53,16 +57,26 @@ corrupted_videos = []
 
 count = 0
 
-for annotation in tqdm(list_of_annotations, desc = 'Extracting features: '):
-    
+for annotation in tqdm(list_of_annotations, desc='Extracting features: '):
+
     json_file = open_file(annotation)
     id = json_file['info']['video_id']
     keyframes = json_file['summary']
-    
+
     start_time_seconds = 0
     end_time_seconds = time_to_seconds(json_file['info']['duration'])
-
-    path_to_video = f"../../jielin/msmo/video/{json_file['info']['category']}/{json_file['info']['sub_category']}/{json_file['info']['video_id']}.mp4"
+    # print(json_file)
+    if not os.path.exists(f"../multisum_data/video/{json_file['info']['category']}"):
+        os.mkdir(f"../multisum_data/video/{json_file['info']['category']}")
+    if not os.path.exists(
+            f"../multisum_data/video/{json_file['info']['category']}/{json_file['info']['sub_category']}"):
+        os.mkdir(f"../multisum_data/video/{json_file['info']['category']}/{json_file['info']['sub_category']}")
+    video_url = json_file['info']['url']
+    yt = YouTube(video_url)
+    yt.streams.filter(file_extension='mp4').first().download(
+        output_path=f"../multisum_data/video/{json_file['info']['category']}/{json_file['info']['sub_category']}",
+        filename=json_file['info']['video_id'] + '.mp4')
+    path_to_video = f"../multisum_data/video/{json_file['info']['category']}/{json_file['info']['sub_category']}/{json_file['info']['video_id']}.mp4"
     frames = extract_frames(path_to_video, start_time_seconds, end_time_seconds, 100)
     # print(len(frames))
     if len(frames) == 0:
@@ -87,8 +101,8 @@ for annotation in tqdm(list_of_annotations, desc = 'Extracting features: '):
         features = torch.cat(features_list, dim=0)
         save_np_dic[f'{id}'] = features.numpy()
 
-    # count +=1 
-    
+    # count +=1
+
     # if count == 50:
     #     break
     print(save_np_dic)
