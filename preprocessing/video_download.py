@@ -57,9 +57,13 @@ corrupted_videos = []
 
 count = 0
 
-for annotation in tqdm(list_of_annotations, desc='Extracting features: '):
+c = ['animals','art','clothes']
+for annotation in tqdm(list_of_annotations, desc = 'Extracting features: '):
+
 
     json_file = open_file(annotation)
+    if json_file['info']['category'] not in c:
+        continue
     id = json_file['info']['video_id']
     keyframes = json_file['summary']
 
