@@ -15,7 +15,7 @@ from pytube import YouTube
 
 torch.set_num_threads(2)
 
-list_of_annotations = glob.glob('../multisum_data/annotation/*/*/*')
+list_of_annotations = glob.glob('../multisum_data/annotation/animals/*/*')
 
 # Load the CLIP model
 device = "cuda:0" if torch.cuda.is_available() else "cpu"
@@ -57,13 +57,12 @@ corrupted_videos = []
 
 count = 0
 
-c = ['animals','art','clothes']
+
 for annotation in tqdm(list_of_annotations, desc = 'Extracting features: '):
 
 
     json_file = open_file(annotation)
-    if json_file['info']['category'] not in c:
-        continue
+
     id = json_file['info']['video_id']
     keyframes = json_file['summary']
 
