@@ -15,7 +15,7 @@ from pytube import YouTube
 
 torch.set_num_threads(2)
 
-list_of_annotations = glob.glob('../multisum_data/annotation/*/*/*')
+list_of_annotations = glob.glob('../multisum_data/annotation/animals/*/*')
 
 # Load the CLIP model
 device = "cuda:0" if torch.cuda.is_available() else "cpu"
@@ -72,10 +72,10 @@ for annotation in tqdm(list_of_annotations, desc='Extracting features: '):
             f"../multisum_data/video/{json_file['info']['category']}/{json_file['info']['sub_category']}"):
         os.mkdir(f"../multisum_data/video/{json_file['info']['category']}/{json_file['info']['sub_category']}")
     video_url = json_file['info']['url']
-    yt = YouTube(video_url)
-    yt.streams.filter(file_extension='mp4').first().download(
-        output_path=f"../multisum_data/video/{json_file['info']['category']}/{json_file['info']['sub_category']}",
-        filename=json_file['info']['video_id'] + '.mp4')
+    #yt = YouTube(video_url)
+    #yt.streams.filter(file_extension='mp4').first().download(
+        #output_path=f"../multisum_data/video/{json_file['info']['category']}/{json_file['info']['sub_category']}",
+        #filename=json_file['info']['video_id'] + '.mp4')
     path_to_video = f"../multisum_data/video/{json_file['info']['category']}/{json_file['info']['sub_category']}/{json_file['info']['video_id']}.mp4"
     frames = extract_frames(path_to_video, start_time_seconds, end_time_seconds, 100)
     # print(len(frames))
