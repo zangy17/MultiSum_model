@@ -19,17 +19,17 @@ list_of_annotations = glob.glob('../multisum_data/annotation/*/*/*')
 
 # Load the CLIP model
 device = "cuda:0" if torch.cuda.is_available() else "cpu"
-model, preprocess = clip.load('ViT-B/32', device=device)
+#model, preprocess = clip.load('ViT-B/32', device=device)
 
 # Modify the model to output features of size 2048
-model.visual.output_dim = 2048
+#model.visual.output_dim = 2048
 
 # Define the transform to preprocess the input frames
-transform = transforms.Compose([
-    transforms.Resize(224),
-    transforms.CenterCrop(224),
-    preprocess
-])
+#transform = transforms.Compose([
+    #transforms.Resize(224),
+    #transforms.CenterCrop(224),
+    #preprocess
+#])
 
 
 class VideoFramesDataset(Dataset):
@@ -47,7 +47,7 @@ class VideoFramesDataset(Dataset):
 
 
 linear = torch.nn.Linear(512, 2048, dtype=torch.float16).to(device)
-model.to(device)
+#model.to(device)
 
 save_np_dic = {}
 
@@ -76,38 +76,3 @@ for annotation in tqdm(list_of_annotations, desc='Extracting features: '):
     yt.streams.filter(file_extension='mp4').first().download(
         output_path=f"../multisum_data/video/{json_file['info']['category']}/{json_file['info']['sub_category']}",
         filename=json_file['info']['video_id'] + '.mp4')
-    path_to_video = f"../multisum_data/video/{json_file['info']['category']}/{json_file['info']['sub_category']}/{json_file['info']['video_id']}.mp4"
-    frames = extract_frames(path_to_video, start_time_seconds, end_time_seconds, 100)
-    # print(len(frames))
-    if len(frames) == 0:
-        corrupted_videos.append(path_to_video)
-        print('Corrupted ... ')
-        pass
-    else:
-
-        dataset = VideoFramesDataset(frames, transform)
-
-        dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=False)
-
-        features_list = []
-
-        with torch.no_grad():
-            for batch in dataloader:
-                batch = batch.to(device)
-                features = model.encode_image(batch)
-                features = linear(features.to(device))
-                features_list.append(features.cpu())
-
-        features = torch.cat(features_list, dim=0)
-        save_np_dic[f'{id}'] = features.numpy()
-
-    # count +=1
-
-    # if count == 50:
-    #     break
-    print(save_np_dic)
-# The features tensor has shape [num_frames, feature_size]
-with open('corrupted_videos.json', 'w') as f:
-    json.dump(corrupted_videos, f)
-
-np.save('msmo_clip_features.npy', save_np_dic)
