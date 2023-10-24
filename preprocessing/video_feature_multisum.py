@@ -13,7 +13,7 @@ import json
 
 torch.set_num_threads(4)
 
-list_of_annotations = glob.glob('../../jielin/msmo/annotation/*/*/*')
+list_of_annotations = glob.glob('../multisum_data/annotation/animals/*/*')
 
 # Load the CLIP model
 device = "cuda:0" if torch.cuda.is_available() else "cpu"
@@ -64,7 +64,7 @@ for annotation in tqdm(list_of_annotations, desc = 'Extracting features: '):
     start_time_seconds = 0
     end_time_seconds = time_to_seconds(json_file['info']['duration'])
 
-    path_to_video = f"../../jielin/msmo/video/{json_file['info']['category']}/{json_file['info']['sub_category']}/{json_file['info']['video_id']}.mp4"
+    path_to_video = f"../multisum_data/video/{json_file['info']['category']}/{json_file['info']['sub_category']}/{json_file['info']['video_id']}.mp4"
     frames = extract_frames(path_to_video, start_time_seconds, end_time_seconds, 100)
     frames = frames[:99]
     # print(len(frames))
