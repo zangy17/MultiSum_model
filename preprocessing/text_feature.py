@@ -17,7 +17,7 @@ torch.set_num_threads(2)
 model = RobertaModel.from_pretrained('roberta-base')
 tokenizer = RobertaTokenizer.from_pretrained('roberta-base')
 
-list_of_annotations = glob.glob('../../jielin/msmo/annotation/*/*/*')
+list_of_annotations = glob.glob('../multisum_data/annotation/animals/*/*')
 
 # Load the CLIP model
 device = "cuda:0" if torch.cuda.is_available() else "cpu"

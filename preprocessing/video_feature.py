@@ -105,7 +105,7 @@ for annotation in tqdm(list_of_annotations, desc='Extracting features: '):
 
     # if count == 50:
     #     break
-    print(save_np_dic)
+    #print(save_np_dic)
 # The features tensor has shape [num_frames, feature_size]
 with open('corrupted_videos.json', 'w') as f:
     json.dump(corrupted_videos, f)

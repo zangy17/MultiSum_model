@@ -13,7 +13,7 @@ import json
 
 torch.set_num_threads(2)
 
-list_of_keyframes = glob.glob('../../jielin/msmo/keyframe/*/*/*')
+list_of_keyframes = glob.glob('../multisum_data/keyframe/animals/*/*')
 
 # Load the CLIP model
 device = "cuda:0" if torch.cuda.is_available() else "cpu"
